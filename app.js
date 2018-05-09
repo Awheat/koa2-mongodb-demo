@@ -6,11 +6,14 @@
 **/
 const Koa = require('koa');
 const path = require('path');
+const bodyParser = require('koa-bodyparser');
 const views = require('koa-views');
 const koaStatic = require('koa-static');
 const router = require('./routers/index');
 const mongoose = require('mongoose');
 const database = require('./configs/database');
+const response = require('./middlewares/resp');
+
 //实例
 const app = new Koa();
 
@@ -26,6 +29,11 @@ app.use(koaStatic(path.join(__dirname, './public')));
 app.use(views(path.join(__dirname, './views'), {
     extension: 'ejs'
 }));
+
+// 使用表单解析中间件
+app.use(bodyParser());
+
+app.use(response);
 
 //加载路由
 app.use(router.routes(), router.allowedMethods());

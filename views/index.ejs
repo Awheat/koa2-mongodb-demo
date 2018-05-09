@@ -1,13 +1,72 @@
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
-</head>
-<body>
-<h1><%= msg %></h1>
-</body>
-</html>
+<%- include("header") %>
+<div class="layout">
+    <h1 class="text-center">第一页</h1>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <a class="btn btn-success" href="/add" role="button">添加一个</a>
+        </div>
+        <div class="panel-body">
+            <table class="table table-bordered" style="text-align: center;">
+                <thead class="thead-dark">
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">姓名</th>
+                    <th scope="col">密码</th>
+                    <th scope="col">年龄</th>
+                    <th scope="col">性别</th>
+                    <th scope="col">电话</th>
+                    <th scope="col">图像</th>
+                    <th scope="col">地址</th>
+                    <th scope="col">操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                <% if(list.length === 0) { %>
+                    <tr>
+                        <td colspan="6"><h1> 暂无数据...</h1></td>
+                    </tr>
+                <% } else { %>
+                    <% for(var i = 0; i < list.length; i++) { %>
+                        <tr>
+                            <td><%= list[i]._id %></td>
+                            <td><%= list[i].name %></td>
+                            <td><%= list[i].password %></td>
+                            <td><%= list[i].age %></td>
+                            <td><%= list[i].gender === 0 ? '男' : '女' %></td>
+                            <td><%= list[i].telephone %></td>
+                            <td><img src="uploads/<%= list[i].picture %>" alt=""></td>
+                            <td><%= list[i].address %></td>
+                            <td>
+                                <a href="#">删除</a>|
+                                <a href="#">修改</a>|
+                                <a href="#">下载</a>
+                            </td>
+                        </tr>
+                    <% } %>
+                <% } %>
+                </tbody>
+            </table>
+
+            <nav class="text-center" aria-label="Page navigation">
+                <ul class="pagination">
+                    <li>
+                        <a href="#" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    <li><a href="#">1</a></li>
+                    <li><a href="#">2</a></li>
+                    <li><a href="#">3</a></li>
+                    <li><a href="#">4</a></li>
+                    <li><a href="#">5</a></li>
+                    <li>
+                        <a href="#" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+<%- include("footer") %>
