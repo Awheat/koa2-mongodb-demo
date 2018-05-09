@@ -22,51 +22,84 @@
                 </thead>
                 <tbody>
                 <% if(list.length === 0) { %>
-                    <tr>
-                        <td colspan="6"><h1> 暂无数据...</h1></td>
-                    </tr>
+                <tr>
+                    <td colspan="9"><h1> 暂无数据...</h1></td>
+                </tr>
                 <% } else { %>
-                    <% for(var i = 0; i < list.length; i++) { %>
-                        <tr>
-                            <td><%= list[i]._id %></td>
-                            <td><%= list[i].name %></td>
-                            <td><%= list[i].password %></td>
-                            <td><%= list[i].age %></td>
-                            <td><%= list[i].gender === 0 ? '男' : '女' %></td>
-                            <td><%= list[i].telephone %></td>
-                            <td><img src="uploads/<%= list[i].picture %>" alt=""></td>
-                            <td><%= list[i].address %></td>
-                            <td>
-                                <a href="#">删除</a>|
-                                <a href="#">修改</a>|
-                                <a href="#">下载</a>
-                            </td>
-                        </tr>
-                    <% } %>
+                <% for(var i = 0; i < list.length; i++) { %>
+                <tr>
+                    <td><%= list[i]._id %></td>
+                    <td><%= list[i].name %></td>
+                    <td><%= list[i].password %></td>
+                    <td><%= list[i].age %></td>
+                    <td><%= list[i].gender === 0 ? '男' : '女' %></td>
+                    <td><%= list[i].telephone %></td>
+                    <td><img src="uploads/<%= list[i].picture %>" alt=""></td>
+                    <td><%= list[i].address %></td>
+                    <td>
+                        <a href="#">删除</a>|
+                        <a href="#">修改</a>|
+                        <a href="#">下载</a>
+                    </td>
+                </tr>
+                <% } %>
                 <% } %>
                 </tbody>
             </table>
 
+            <% if(total !== 0) { %>
             <nav class="text-center" aria-label="Page navigation">
                 <ul class="pagination">
                     <li>
-                        <a href="#" aria-label="Previous">
+                        <a href="javascript:void(0);" aria-label="Previous">
                             <span aria-hidden="true">&laquo;</span>
                         </a>
                     </li>
-                    <li><a href="#">1</a></li>
-                    <li><a href="#">2</a></li>
-                    <li><a href="#">3</a></li>
-                    <li><a href="#">4</a></li>
-                    <li><a href="#">5</a></li>
+                    <% for(var i = 1; i <= total; i++) { %>
+                    <li class="page_num"><a href="/?page=<%= i %>"><%= i %></a></li>
+                    <% } %>
                     <li>
-                        <a href="#" aria-label="Next">
+                        <a href="javascript:void(0);" aria-label="Next">
                             <span aria-hidden="true">&raquo;</span>
                         </a>
                     </li>
                 </ul>
             </nav>
+            <% } %>
         </div>
     </div>
 </div>
+<script type="text/javascript">
+    $(function () {
+        /*
+        *
+        * 构造函数
+        *
+        * */
+        function Index() {
+            this.page_num = $(".page_num");
+        }
+
+        Index.prototype = {
+            constructor: Index,
+            init: function () {
+                this.setCurrentPage();
+            },
+            events: function () {
+
+            },
+            setCurrentPage: function () {
+                let index = 1;
+                let page = location.href.split("?");
+                if (page.length > 1) {
+                    index = page[1].split("=")[1] || 1;
+                }
+                this.page_num.eq(index - 1).addClass("active").siblings().removeClass("active");
+            }
+        }
+
+        //调用
+        new Index().init();
+    })
+</script>
 <%- include("footer") %>

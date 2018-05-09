@@ -49,6 +49,9 @@ router.get('/add', index._renderAdd);
 
 //controller
 router.post('/controller/add', index._controllerAdd);
+router.post('/controller/delete', index._controllerDelete);
+router.post('/controller/update', index._controllerUpdate);
+router.post('/controller/list', index._controllerList);
 router.post('/controller/upload', upload.single("file"), index._controllerUpload);
 
 
