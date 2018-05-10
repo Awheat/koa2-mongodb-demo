@@ -5,7 +5,10 @@
 *   @Date: 2018-05-09
 *
 * */
-
+const path = require('path');
+const fs = require('fs');
+const archiver = require('archiver');
+const ObjectId = require('mongoose').Types.ObjectId;
 //实体
 const User = require('../models/user');
 
@@ -28,6 +31,23 @@ const getListByPage = async (index = 1) => {
         total: total,
         list: result
     }
+};
+
+/*
+*
+*   @Description: 根据id查找
+*   @Author: WuWangCheng
+*   @Date: 2018-05-09
+*
+* */
+const getUserById = async (id) => {
+    console.log(id);
+    if (!ObjectId.isValid(id)) {
+        return;
+    }
+    const result = await User.findById({_id: id});
+
+    return result;
 };
 
 
@@ -57,6 +77,22 @@ const _renderIndex = async (ctx, next) => {
 * */
 const _renderAdd = async (ctx, next) => {
     await ctx.render('add', {});
+};
+
+/*
+*
+*   @Description: 渲染add页面
+*   @Author: WuWangCheng
+*   @Date: 2018-05-09
+*
+* */
+const _renderUpdate = async (ctx, next) => {
+    const id = ctx.query.id;
+    const result = await getUserById(id);
+    console.log(result);
+    await ctx.render('update', {
+        user: result
+    });
 };
 
 
@@ -89,14 +125,19 @@ const _controllerAdd = async (ctx, next) => {
 *
 * */
 const _controllerDelete = async (ctx, next) => {
-    const res = ctx.req.file.filename;
-    console.log(res);
-    if (res) {
-        ctx.success({
-            msg: "上传成功!",
-            data: [res]
-        })
+    let id = ctx.request.body.id;
+    let result = await User.update({_id: id}, {
+        $set: {
+            status: 0,
+            updatedAt: new Date()
+        }
+    });
+    if (result) {
+        ctx.success({msg: "删除成功!"});
+    } else {
+        ctx.error({msg: "删除失败!"});
     }
+
 };
 
 /*
@@ -107,35 +148,68 @@ const _controllerDelete = async (ctx, next) => {
 *
 * */
 const _controllerUpdate = async (ctx, next) => {
-    const res = ctx.req.file.filename;
-    console.log(res);
-    if (res) {
-        ctx.success({
-            msg: "上传成功!",
-            data: [res]
-        })
-    }
+
+};
+
+
+/*
+*
+*   @Description: 下载
+*   @Author: WuWangCheng
+*   @Date: 2018-05-10
+*
+* */
+const _controllerDownLoad = async (ctx, next) => {
+    const name = ctx.query.name;
+    const file = path.join(__dirname, '../public/uploads', name);
+    ctx.status = 200;
+    ctx.set('Content-disposition', 'attachment; filename=' + name);
+    ctx.set('Content-type', 'image/jpeg');
+    ctx.body = fs.createReadStream(file);
 };
 
 /*
 *
-*   @Description: 获取列表
+*   @Description: 批量下载
 *   @Author: WuWangCheng
-*   @Date: 2018-05-09
+*   @Date: 2018-05-10
 *
 * */
-const _controllerList = async (ctx, next) => {
-    let pageIndex = ctx.request.body.index || 1;
-    console.log(pageIndex);
-    const result = await getListByPage(pageIndex);
-    console.log(result);
-    ctx.success({
-        msg: "success",
-        data: {
-            total: result.total,
-            list: result.list
+
+const _controllerDownLoads = async (ctx, next) => {
+    try {
+        let names = ctx.request.body.names;
+        let files = [];
+        for (let i = 0; i < names.length; i++) {
+            files.push({
+                path: path.join(__dirname, '../public/uploads/', names[i]),
+                name: names[i]
+            })
         }
-    });
+
+        let date = new Date();
+        let zipname = date.getFullYear() + '' + date.getMonth() + '' + date.getDay() + '' + date.getHours() + '' + date.getMinutes() + '' + date.getSeconds();
+
+        //延时1秒调用
+        await setTimeout(async () => {
+            let zipPath = path.join(__dirname, '../public/', zipname + '.zip');
+            let output = fs.createWriteStream(zipPath);
+            let zip = archiver('zip');
+            //将打包对象与输出流关联
+            zip.pipe(output);
+            for (let i = 0; i < files.length; i++) {
+                console.log(files[i].path);
+                zip.append(fs.createReadStream(files[i].path), {'name': files[i].name});
+            }
+            //打包
+            await zip.finalize();
+
+        }, 1000);
+
+        ctx.success({"msg": "success", data: ['/' + zipname + '.zip']});
+    } catch (e) {
+        ctx.error({msg: "图片下失败!", data: []})
+    }
 };
 
 
@@ -161,9 +235,11 @@ const _controllerUpload = async (ctx, next) => {
 module.exports = {
     _renderIndex,
     _renderAdd,
+    _renderUpdate,
     _controllerAdd,
     _controllerDelete,
     _controllerUpdate,
-    _controllerList,
-    _controllerUpload
+    _controllerUpload,
+    _controllerDownLoad,
+    _controllerDownLoads
 };

@@ -37,9 +37,9 @@
                     <td><img src="uploads/<%= list[i].picture %>" alt=""></td>
                     <td><%= list[i].address %></td>
                     <td>
-                        <a href="#">删除</a>|
-                        <a href="#">修改</a>|
-                        <a href="#">下载</a>
+                        <a href="javascript:void(0);" class="btn_del" data-id="<%= list[i]._id %>">删除</a>|
+                        <a href="/update/?id=<%= list[i]._id %>" class="btn_mdf">修改</a>|
+                        <a href="javascript:void(0);" class="btn_dld" data-id="<%= list[i].picture %>">下载</a>
                     </td>
                 </tr>
                 <% } %>
@@ -84,8 +84,42 @@
             constructor: Index,
             init: function () {
                 this.setCurrentPage();
+                this.events();
             },
             events: function () {
+                let controls = {
+                    "delete": "/controller/delete",
+                    "update": "/controller/update",
+                    "findbyid": "/controller/findById"
+                };
+                let _delete = $(".btn_del");
+                let _modify = $(".btn_mdf");
+                let _dnload = $(".btn_dld");
+
+                _delete.on('click', function () {
+                    let id = $(this).attr('data-id');
+                    let flag = confirm("确认删除该条信息吗?");
+                    if (flag) {
+                        $.post(controls.delete, {id: id}, function (res) {
+                            if (res.code === 200) {
+                                location.reload();
+                            }
+                        })
+                    }
+                });
+
+                _dnload.on('click', function () {
+                    let name = $(this).attr('data-id');
+                    window.open('http://' + location.host + '/controller/download/?name=' + name, '_blank');
+                })
+
+                _modify.on('click', function () {
+                    let id = $(this).attr('data-id');
+                    $.post(controls.findbyid, {id: id}, function (res) {
+                        console.log(res);
+                    })
+                })
+
 
             },
             setCurrentPage: function () {

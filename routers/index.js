@@ -46,13 +46,15 @@ const index = require('../controllers/index');
 //render
 router.get('/', index._renderIndex);
 router.get('/add', index._renderAdd);
+router.get('/update', index._renderUpdate);
 
 //controller
 router.post('/controller/add', index._controllerAdd);
 router.post('/controller/delete', index._controllerDelete);
-router.post('/controller/update', index._controllerUpdate);
-router.post('/controller/list', index._controllerList);
+router.get('/controller/update', index._controllerUpdate);
 router.post('/controller/upload', upload.single("file"), index._controllerUpload);
+router.get('/controller/download', index._controllerDownLoad);
+router.post('/controller/downloads', index._controllerDownLoads);
 
 
 module.exports = router;
