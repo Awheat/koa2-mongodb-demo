@@ -57,4 +57,7 @@ router.get('/controller/download', index._controllerDownLoad);
 router.post('/controller/downloads', index._controllerDownLoads);
 
 
+router.post('/controller/me/upload', index._controllerMeUpload);
+
+
 module.exports = router;

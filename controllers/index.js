@@ -159,9 +159,57 @@ const _controllerUpdate = async (ctx, next) => {
 *   @Date: 2018-05-10
 *
 * */
+
+const imageMagick = require('gm').subClass({imageMagick: true, appPath: "C:\\ImageMagick-7.0.7-Q16\\"});
+
 const _controllerDownLoad = async (ctx, next) => {
     const name = ctx.query.name;
     const file = path.join(__dirname, '../public/uploads', name);
+
+
+    const _font = path.join(__dirname, '../public/static/fonts/simfang.ttf');
+    const _logo = path.join(__dirname, '../public/static/images/logo.jpg');
+
+    //let text = new Buffer('刘德华', 'utf8').toString();
+
+    //文字水印
+    await imageMagick(file)
+        .fill('#000')
+        .font(_font, 24)
+        .drawText(50, 50, '小明', "SouthEast")
+        .write(__dirname + '/public/uploads/' + name, function (err) {
+            if (err) {
+                return res.end('error|' + err.message);
+            }
+        });
+
+
+    /*await imageMagick()
+        .in('-page', '+0+0')
+        .in(file)
+        .in('-page', '+10+20') // location of smallIcon.jpg is x,y -> 10, 20
+        .in(logo)
+        //.resize(32, 32)
+        .mosaic()
+        .write(process.cwd() + '/public/new.jpg', function (err) {
+            if (err) console.log(err);
+        });*/
+
+    //logo水印
+    await imageMagick()
+        .command("composite")
+        .in("-gravity", 'SouthEast')
+        .in("-geometry", '+10+10')
+        .in(_logo)
+        .in(file)
+        .write(__dirname + '/public/uploads/' + name, function (err) {
+            if (!err)
+                console.log(' hooray! ');
+            else
+                console.log(err);
+        });
+
+
     ctx.status = 200;
     ctx.set('Content-disposition', 'attachment; filename=' + name);
     ctx.set('Content-type', 'image/jpeg');
@@ -232,6 +280,13 @@ const _controllerUpload = async (ctx, next) => {
 };
 
 
+const _controllerMeUpload = async (ctx, next) => {
+    ctx.body = {
+        url: "http://localhost:3000/uploads/1525850149626.jpg"
+    }
+}
+
+
 module.exports = {
     _renderIndex,
     _renderAdd,
@@ -241,5 +296,6 @@ module.exports = {
     _controllerUpdate,
     _controllerUpload,
     _controllerDownLoad,
-    _controllerDownLoads
+    _controllerDownLoads,
+    _controllerMeUpload
 };
